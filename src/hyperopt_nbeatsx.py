@@ -73,6 +73,8 @@ def get_experiment_space(args):
                 'n_layers': hp.choice('n_layers', [ [2, 2] ]),
                 'n_hidden_1': hp.quniform('n_hidden_1', 50, 500, 1),
                 'n_hidden_2': hp.quniform('n_hidden_2', 50, 500, 1),
+                'n_harmonics': hp.choice('n_harmonics', [0]),
+                'n_polynomials': hp.choice('n_polynomials', [0]),
                 'exogenous_n_channels': hp.quniform('exogenous_n_channels', 1, 10, 1),
                 'batch_normalization': hp.choice('batch_normalization', [True, False]),
                 'dropout_prob_theta': hp.uniform('dropout_prob_theta', 0, 1),
