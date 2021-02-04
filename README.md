@@ -5,5 +5,10 @@ In this work we present the neural basis expansion analysis with exogenous varia
 <img src="./results/nbeatsx.png" width="700">
 </div>
 
+### Run NBEATSx experiment from console
+```console
+CUDA_VISIBLE_DEVICES=0 PYTHONPATH=. python src/hyperopt_nbeatsx.py --dataset 'NP' --space "nbeats_x" --data_augmentation 0 --random_validation 0 --n_val_weeks 52 --hyperopt_iters 1500 --experiment_id "20210129_0_0"
+```
+
 ## REFERENCES
 1. [N-BEATS: Neural basis expansion analysis for interpretable time series forecasting](https://arxiv.org/abs/1905.10437)
