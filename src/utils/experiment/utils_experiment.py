@@ -19,11 +19,9 @@ from hyperopt import STATUS_OK
 
 from src.utils.numpy.metrics import rmae, mae, mape, smape, rmse
 from src.utils.data.utils import Scaler
-from src.utils.pytorch.ts_dataset import TimeSeriesDataset
-from src.utils.pytorch.ts_dataset_new import TimeSeriesDataset as TimeSeriesDatasetNew
 
+from src.utils.pytorch.ts_dataset import TimeSeriesDataset
 from src.utils.pytorch.ts_loader import TimeSeriesLoader
-from src.utils.pytorch.ts_loader_general import TimeSeriesLoader as TimeSeriesLoaderGeneral
 
 
 # Models
