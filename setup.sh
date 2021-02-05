@@ -11,8 +11,8 @@ conda install -c anaconda seaborn==0.9.0
 
 # pytorch
 #conda install pytorch==1.4.0 torchvision==0.5.0 cudatoolkit=10.1 -c pytorch
-conda install pytorch==1.7.0 torchvision==0.5.0 cudatoolkit=10.1 -c pytorch
-#conda install pytorch torchvision -c pytorch
+#conda install pytorch==1.7.0 torchvision==0.5.0 cudatoolkit=10.1 -c pytorch
+conda install pytorch torchvision -c pytorch
 
 conda install -c conda-forge jupyterlab
 
