@@ -8,6 +8,17 @@ This repository provides an implementation of the NBEATSx algorithm introduced i
 <img src="./results/nbeatsx.png" width="700">
 </div>
 
+## Electricity Price Forecasting Results
+The tables report the forecasting accuracy for the two years of test, using the ensembled models in the Nord Pool market. 
+The results for the Pennsylvania-New Jersey-Maryland, Belgium, France and Germany markets are available with detail in the paper.
+
+| METRIC       |    AR |   ESRNN |   NBEATS |   ARX |   LEAR |   DNN |   NBEATSx-G |   NBEATSx-I |
+|:-------------|------:|--------:|---------:|------:|-------:|------:|------------:|------------:|
+| MAE          |  2.26 |    2.09 |     2.08 |  2.01 |   1.74 |  1.68 |        1.58 |        1.62 |
+| rMAE         |  0.71 |    0.66 |     0.66 |  0.63 |   0.55 |  0.53 |        0.5  |        0.51 |
+| sMAPE        |  6.47 |    6.04 |     5.96 |  5.84 |   5.01 |  4.88 |        4.63 |        4.7  |
+| RMSE         |  4.08 |    3.89 |     3.94 |  3.71 |   3.36 |  3.32 |        3.16 |        3.27 |
+
 ### Run NBEATSx experiment from console
 ```console
 CUDA_VISIBLE_DEVICES=0 PYTHONPATH=. python src/hyperopt_nbeatsx.py --dataset 'NP' --space "nbeats_x" --data_augmentation 0 --random_validation 0 --n_val_weeks 52 --hyperopt_iters 1500 --experiment_id "20210129_0_0"
@@ -21,7 +32,8 @@ If you use NBEATSx, please cite the following paper:
 @article{olivares2021neural,
   title={Neural basis expansion analysis with exogenous variables: Forecasting electricity prices with NBEATSx},
   author={Olivares, Kin G and Challu, Cristian and Marcjasz, Grzegorz and Weron, Rafa{\l} and Dubrawski, Artur},
-  journal={arXiv preprint arXiv:2104.05522},
+  journal = {International Journal of Forecasting, submitted},
+  volume = {Working Paper version available at arXiv:2104.05522},
   year={2021}
 }
 ```
