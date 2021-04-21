@@ -29,6 +29,9 @@ python src/hyperopt_nbeatsx.py --dataset 'NP' --space "nbeats_x" --data_augmenta
 ```
 We included the forecasts for all the markets and models in the results folder. The notebook [main_results.ipynb](https://github.com/cchallu/nbeatsx/blob/main/main_results.ipynb) replicates the main results table and GW test plots.
 
+## License
+This project is licensed under the MIT License - see the [LICENSE](https://github.com/cchallu/nbeatsx/blob/master/LICENSE) file for details.
+
 ## Citation
 
 If you use NBEATSx, please cite the following paper:
