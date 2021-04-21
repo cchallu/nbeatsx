@@ -9,48 +9,14 @@ This repository provides an implementation of the NBEATSx algorithm introduced i
 </div>
 
 ## Electricity Price Forecasting Results
-The tables report the forecasting accuracy for the two years of test, using the ensembled models.
+The tables report the forecasting accuracy for the two years of test, using the ensembled models in the Nord Pool market.
 
-Nord Pool
 | METRIC       |    AR |   ESRNN |   NBEATS |   ARX |   LEAR |   DNN |   NBEATSx-G |   NBEATSx-I |
 |:-------------|------:|--------:|---------:|------:|-------:|------:|------------:|------------:|
 | MAE          |  2.26 |    2.09 |     2.08 |  2.01 |   1.74 |  1.68 |        1.58 |        1.62 |
 | rMAE         |  0.71 |    0.66 |     0.66 |  0.63 |   0.55 |  0.53 |        0.5  |        0.51 |
 | sMAPE        |  6.47 |    6.04 |     5.96 |  5.84 |   5.01 |  4.88 |        4.63 |        4.7  |
 | RMSE         |  4.08 |    3.89 |     3.94 |  3.71 |   3.36 |  3.32 |        3.16 |        3.27 |
-
-Pennsylvania-New Jersey-Maryland
-| METRIC       |    AR |   ESRNN |   NBEATS |   ARX |   LEAR |   DNN |   NBEATSx-G |   NBEATSx-I |
-|:-------------|------:|--------:|---------:|------:|-------:|------:|------------:|------------:|
-| MAE          |  3.83 |    3.59 |     3.49 |  3.53 |   3.01 |  2.86 |        2.91 |        2.9  |
-| rMAE         |  0.79 |    0.74 |     0.72 |  0.73 |   0.62 |  0.59 |        0.6  |        0.6  |
-| sMAPE        | 14.5  |   14.12 |    13.57 | 13.64 |  11.98 | 11.33 |       11.54 |       11.61 |
-| RMSE         |  6.24 |    5.83 |     5.64 |  5.74 |   5.13 |  5.04 |        5.02 |        4.84 |
-
-European Power Exchange Belgium
-| METRIC       |    AR |   ESRNN |   NBEATS |   ARX |   LEAR |   DNN |   NBEATSx-G |   NBEATSx-I |
-|:-------------|------:|--------:|---------:|------:|-------:|------:|------------:|------------:|
-| MAE          |  7.2  |    6.96 |     6.84 |  7.19 |   6.14 |  5.87 |        5.96 |        6.11 |
-| rMAE         |  0.88 |    0.85 |     0.83 |  0.88 |   0.75 |  0.72 |        0.73 |        0.75 |
-| sMAPE        | 16.26 |   15.84 |    15.8  | 16.11 |  14.55 | 13.45 |       13.86 |       14.02 |
-| RMSE         | 18.62 |   16.84 |    17.13 | 18.07 |  15.97 | 15.97 |       15.76 |       15.8  |
-
-European Power Exchange France
-| METRIC       |    AR |   ESRNN |   NBEATS |   ARX |   LEAR |   DNN |   NBEATSx-G |   NBEATSx-I |
-|:-------------|------:|--------:|---------:|------:|-------:|------:|------------:|------------:|
-| MAE          |  4.65 |    4.65 |     4.74 |  4.56 |   3.98 |  3.87 |        3.81 |        3.79 |
-| rMAE         |  0.78 |    0.78 |     0.8  |  0.76 |   0.67 |  0.65 |        0.64 |        0.64 |
-| sMAPE        | 13.03 |   13.22 |    13.3  | 12.7  |  11.57 | 10.81 |       10.59 |       10.69 |
-| RMSE         | 13.89 |   11.83 |    12.01 | 12.94 |  10.68 | 11.87 |       11.5  |       11.25 |
-
-European Power Exchange Germany
-| METRIC       |    AR |   ESRNN |   NBEATS |   ARX |   LEAR |   DNN |   NBEATSx-G |   NBEATSx-I |
-|:-------------|------:|--------:|---------:|------:|-------:|------:|------------:|------------:|
-| MAE          |  5.74 |    5.6  |     5.31 |  4.36 |   3.96 |  3.41 |        3.31 |        3.29 |
-| rMAE         |  0.71 |    0.7  |     0.66 |  0.54 |   0.49 |  0.42 |        0.41 |        0.41 |
-| sMAPE        | 21.37 |   20.97 |    19.61 | 17.73 |  15.75 | 14.08 |       13.99 |       13.99 |
-| RMSE         |  9.63 |    9.09 |     8.99 |  7.38 |   7.08 |  5.93 |        5.72 |        5.65 |
-
 
 ### Run NBEATSx experiment from console
 ```console
