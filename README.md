@@ -21,7 +21,8 @@ If you use NBEATSx, please cite the following paper:
 @article{olivares2021neural,
   title={Neural basis expansion analysis with exogenous variables: Forecasting electricity prices with NBEATSx},
   author={Olivares, Kin G and Challu, Cristian and Marcjasz, Grzegorz and Weron, Rafa{\l} and Dubrawski, Artur},
-  journal={arXiv preprint arXiv:2104.05522},
+  journal = {International Journal of Forecasting, submitted},
+  volume = {Working Paper version available at arXiv:2104.05522},
   year={2021}
 }
 ```
