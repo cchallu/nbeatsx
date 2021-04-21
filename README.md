@@ -9,6 +9,7 @@ This repository provides an implementation of the NBEATSx algorithm introduced i
 </div>
 
 ## Electricity Price Forecasting Results
+The tables report the forecasting accuracy for the two years of test, using the ensembled models.
 
 Nord Pool
 | METRIC       |    AR |   ESRNN |   NBEATS |   ARX |   LEAR |   DNN |   NBEATSx-G |   NBEATSx-I |
