@@ -10,7 +10,7 @@ This repository provides an implementation of the NBEATSx algorithm introduced i
 
 ## Electricity Price Forecasting Results
 The tables report the forecasting accuracy for the two years of test, using the ensembled models in the Nord Pool market. 
-The results for the Pennsylvania-New Jersey-Maryland, Belgium, France and Germany markets are available with detail in the paper.
+The results for the Pennsylvania-New Jersey-Maryland, Belgium, France and Germany markets are available in the paper.
 
 | METRIC       |    AR |   ESRNN |   NBEATS |   ARX |   LEAR |   DNN |   NBEATSx-G |   NBEATSx-I |
 |:-------------|------:|--------:|---------:|------:|-------:|------:|------------:|------------:|
@@ -19,10 +19,15 @@ The results for the Pennsylvania-New Jersey-Maryland, Belgium, France and German
 | sMAPE        |  6.47 |    6.04 |     5.96 |  5.84 |   5.01 |  4.88 |        4.63 |        4.7  |
 | RMSE         |  4.08 |    3.89 |     3.94 |  3.71 |   3.36 |  3.32 |        3.16 |        3.27 |
 
+### NBEATSx usage
+Our implementation of the NBEATSx is designed to work on any data. We designed a full pipeline with auxiliary objects, namely Dataset and DataLoader, to facilitate the forecasting task. We provide an example notebook in [example.ipynb](https://github.com/cchallu/nbeatsx/blob/main/nbeatsx_example.ipynb)
+
 ### Run NBEATSx experiment from console
+To replicate the results of the paper, in particular to produce the forecasts for NBEATSx, run the following line:
 ```console
-CUDA_VISIBLE_DEVICES=0 PYTHONPATH=. python src/hyperopt_nbeatsx.py --dataset 'NP' --space "nbeats_x" --data_augmentation 0 --random_validation 0 --n_val_weeks 52 --hyperopt_iters 1500 --experiment_id "20210129_0_0"
+python src/hyperopt_nbeatsx.py --dataset 'NP' --space "nbeats_x" --data_augmentation 0 --random_validation 0 --n_val_weeks 52 --hyperopt_iters 1500 --experiment_id "nbeatsx_0_0"
 ```
+We included the forecasts for all the markets and models in the results folder. The notebook [main_results.ipynb](https://github.com/cchallu/nbeatsx/blob/main/main_results.ipynb) replicates the main results table and GW test plots.
 
 ## Citation
 
