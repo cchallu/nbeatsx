@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
 import numpy as np
 import pandas as pd
 import multiprocessing as mp
@@ -104,10 +101,6 @@ def GW_CPA_test(loss1: np.ndarray,
     reg = instruments * lossdiff
     
     if tau == 1:
-
-        #res_beta = np.linalg.solve(reg.T.dot(reg), 
-        #                           reg.T.dot(np.ones((t,1))))
-
         res_beta = np.linalg.lstsq(reg, np.ones((t)), rcond=None)[0]
 
         err = np.ones((t,1)) - reg.dot(res_beta)

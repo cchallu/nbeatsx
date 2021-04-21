@@ -136,7 +136,6 @@ def run_val_nbeatsx(hyperparameters, Y_df, X_df, data_augmentation, random_valid
     mc['shared_weights'] = False
     mc['x_s_n_hidden'] = 0
     mc['train_every_n_steps'] = 1
-    mc['frequency'] = 'H'
     mc['seasonality'] = 24
     mc['loss_hypar'] = None
     mc['val_loss'] = mc['loss']
@@ -263,7 +262,6 @@ def run_val_nbeatsx(hyperparameters, Y_df, X_df, data_augmentation, random_valid
                    loss=mc['loss'],
                    loss_hypar=mc['loss_hypar'],
                    val_loss=mc['val_loss'],
-                   frequency=mc['frequency'],
                    seasonality=int(mc['seasonality']),
                    random_seed=int(mc['random_seed']))
 
@@ -422,7 +420,6 @@ def run_test_nbeatsx(mc, Y_df, X_df, len_outsample):
                            loss=mc['loss'],
                            loss_hypar=mc['loss_hypar'],
                            val_loss=mc['val_loss'],
-                           frequency=mc['frequency'],
                            seasonality=int(mc['seasonality']),
                            random_seed=int(mc['random_seed']))
 

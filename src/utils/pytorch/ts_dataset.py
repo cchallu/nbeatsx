@@ -42,7 +42,7 @@ class TimeSeriesDataset(Dataset):
         self.n_series   = len(ts_data)
         self.max_len    = max([len(ts['y']) for ts in ts_data])
         self.n_channels = len(self.t_cols) # y, X_cols, insample_mask and outsample_mask
-        self.frequency  = pd.infer_freq(Y_df.head()['ds']) #TODO: improve, can die with head
+        self.frequency  = pd.infer_freq(Y_df.head()['ds'])
         self.f_cols     = f_cols
 
         # Number of X and S features

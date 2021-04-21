@@ -15,7 +15,7 @@ class TimeSeriesLoader(object):
                  window_sampling_limit: int,
                  input_size: int,
                  output_size: int,
-                 idx_to_sample_freq: int, # TODO: Usada en hack ENORME para window frequency sampling
+                 idx_to_sample_freq: int,
                  batch_size: int,
                  is_train_loader: bool,
                  shuffle:bool):
@@ -156,7 +156,6 @@ class TimeSeriesLoader(object):
     def _create_train_data(self):
         """
         """
-        #print('Creating windows matrix ...')
         # Create rolling window matrix for fast information retrieval
         self.ts_windows, self.s_matrix = self._create_windows_tensor()
         self.n_windows = len(self.ts_windows)

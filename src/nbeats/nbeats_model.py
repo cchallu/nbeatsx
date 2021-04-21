@@ -242,7 +242,6 @@ class ExogenousBasisInterpretable(nn.Module):
         forecast = t.einsum('bp,bpt->bt', theta[:, :cut_point], forecast_basis)
         return backcast, forecast
 
-
 class Chomp1d(nn.Module):
     def __init__(self, chomp_size):
         super(Chomp1d, self).__init__()

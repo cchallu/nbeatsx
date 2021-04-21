@@ -73,7 +73,6 @@ class Nbeats(object):
                  loss,
                  loss_hypar,
                  val_loss,
-                 frequency,
                  random_seed,
                  seasonality,
                  device=None):
@@ -153,8 +152,6 @@ class Nbeats(object):
         val_loss:
             Validation loss.
             An item from ['MAPE', 'MASE', 'SMAPE', 'RMSE', 'MAE', 'PINBALL'].
-        frequency: str
-            Time series frequency.
         random_seed: int
             random_seed for pseudo random pytorch initializer and
             numpy random generator.
@@ -202,7 +199,6 @@ class Nbeats(object):
         self.random_seed = random_seed
 
         # Data parameters
-        self.frequency = frequency
         self.seasonality = seasonality
         self.include_var_dict = include_var_dict
         self.t_cols = t_cols
