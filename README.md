@@ -10,7 +10,7 @@ This repository provides an implementation of the NBEATSx algorithm introduced i
 
 ## Electricity Price Forecasting Results
 The tables report the forecasting accuracy for the two years of test, using the ensembled models in the Nord Pool market. 
-The results for the Pennsylvania-New Jersey-Maryland, Belgium, France and Germany markets are available in the paper.
+The results for the Pennsylvania-New Jersey-Maryland, Belgium, France and Germany markets are available with detail in the paper.
 
 | METRIC       |    AR |   ESRNN |   NBEATS |   ARX |   LEAR |   DNN |   NBEATSx-G |   NBEATSx-I |
 |:-------------|------:|--------:|---------:|------:|-------:|------:|------------:|------------:|
