@@ -34,7 +34,7 @@ We included the forecasts for all the markets and models in the results folder. 
 If you use NBEATSx, please cite the following paper:
 
 ```console
-@article{olivares2021neural,
+@article{olivares2021nbeatsx,
   title={Neural basis expansion analysis with exogenous variables: Forecasting electricity prices with NBEATSx},
   author={Olivares, Kin G and Challu, Cristian and Marcjasz, Grzegorz and Weron, Rafa{\l} and Dubrawski, Artur},
   journal = {International Journal of Forecasting, submitted},
