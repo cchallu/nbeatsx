@@ -2,30 +2,23 @@ import os
 import time
 import pickle
 import glob
-from datetime import datetime
-os.environ['KMP_DUPLICATE_LIB_OK']='True' #esrnn fix bug mkl incompatibilty
-
-import yaml
 import argparse
 import itertools
-import ast
+import random
 
 import numpy as np
 import pandas as pd
 import torch as t
-import random
 
+from datetime import datetime
 from hyperopt import STATUS_OK
 
 from src.utils.numpy.metrics import rmae, mae, mape, smape, rmse
 from src.utils.data.utils import Scaler
-
 from src.utils.pytorch.ts_dataset import TimeSeriesDataset
 from src.utils.pytorch.ts_loader import TimeSeriesLoader
-
-
-# Models
 from src.nbeats.nbeats import Nbeats
+
 
 def transform_data(Y_df, X_df, mask, normalizer_y, normalizer_x):
     """
@@ -100,7 +93,7 @@ def train_val_split(len_series, offset, window_sampling_limit, n_val_weeks, ds_p
         hours_idx = range(day*ds_per_day,(day+1)*ds_per_day)
         val_idx += hours_idx
 
-    assert all([idx < last_ds for idx in val_idx]), 'Leakage!!!!'
+    assert all([idx < last_ds for idx in val_idx]), 'Last idx should be smaller than last_ds'
     
     return train_idx, val_idx
 
@@ -132,7 +125,7 @@ def run_val_nbeatsx(hyperparameters, Y_df, X_df, data_augmentation, random_valid
     else:
         mc['idx_to_sample_freq'] = 24
 
-    # Avoid this combination because it sometimes explodes
+    # Avoid this combination because it can produce results with large variance
     if (mc['batch_normalization']) and (mc['normalizer_y']==None):
          mc['normalizer_y'] = 'median'
 
@@ -278,7 +271,7 @@ def run_val_nbeatsx(hyperparameters, Y_df, X_df, data_augmentation, random_valid
     model.fit(train_ts_loader=train_ts_loader, val_ts_loader=val_ts_loader, n_iterations=mc['n_iterations'], eval_steps=mc['eval_steps'])
     
     # Predict on validation
-    _, y_hat, _ = model.predict(ts_loader=val_ts_loader, eval_mode=True)
+    _, y_hat, _ = model.predict(ts_loader=val_ts_loader)
     y_hat = y_hat.flatten()
 
     # Scale to original scale
@@ -321,7 +314,7 @@ def run_test_nbeatsx(mc, Y_df, X_df, len_outsample):
         print(10*'-', f'Split {split+1}/{n_splits}', 10*'-')
         # The offset can be interpreted as the timestamps in test (all hours of the remaining days) Eg. if split=0 (first day of test),
         # offset will be equal to 728*24. The offset is then used to filter the last part of the data, so that the model is trained
-        # with the information prior to the day currently being predicted. <------------------- IMPORTANT EXPLANATION, READ! 
+        # with the information prior to the day currently being predicted.
         offset = len_outsample - split * mc['output_size']
         assert offset > 0, 'Offset must be positive'
         print(f'Offset: {offset}')
@@ -434,15 +427,14 @@ def run_test_nbeatsx(mc, Y_df, X_df, len_outsample):
                            random_seed=int(mc['random_seed']))
 
             model.fit(train_ts_loader=train_ts_loader, val_ts_loader=val_ts_loader,
-                      n_iterations=mc['n_iterations'], eval_steps=mc['eval_steps']) #50
+                      n_iterations=mc['n_iterations'], eval_steps=mc['eval_steps'])
 
         # Predict with re-calibrated model in test day
         _, y_hat_split, y_hat_decomposed_split, _ = model.predict(ts_loader=test_ts_loader,
-                                                                  eval_mode=True,
                                                                   return_decomposition=True)
         y_hat_split = y_hat_split.flatten() # Only for univariate models
 
-        assert len(y_hat_split) == mc['output_size'], 'Something weird happend, call Cristian'
+        assert len(y_hat_split) == mc['output_size'], 'Forecast should have length equal to output_size'
  
         if mc['normalizer_y'] is not None:
             y_hat_split = scaler_y.inv_scale(x=y_hat_split)

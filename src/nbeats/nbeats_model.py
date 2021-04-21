@@ -6,7 +6,7 @@ from typing import Tuple
 from src.nbeats.tcn import TemporalConvNet
 
 def filter_input_vars(insample_y, insample_x_t, outsample_x_t, t_cols, include_var_dict):
-
+    # This function is specific for the EPF task
     if t.cuda.is_available():
         device = insample_x_t.get_device()
     else:
@@ -60,7 +60,7 @@ class NBeatsBlock(nn.Module):
     """
     N-BEATS block which takes a basis function as an argument.
     """
-    def __init__(self, x_t_n_inputs: int, x_s_n_inputs: int, x_s_n_hidden: int, theta_n_dim: int, basis: nn.Module, # n_static:int
+    def __init__(self, x_t_n_inputs: int, x_s_n_inputs: int, x_s_n_hidden: int, theta_n_dim: int, basis: nn.Module,
                  n_layers: int, theta_n_hidden: list, include_var_dict, t_cols, batch_normalization: bool, dropout_prob: float, activation: str):
         """
         """
@@ -86,15 +86,6 @@ class NBeatsBlock(nn.Module):
 
         hidden_layers = []
         for i in range(n_layers):
-
-            # Batch norm before activation
-            # if self.batch_normalization:
-            #     hidden_layers.append(nn.Linear(in_features=theta_n_hidden[i], out_features=theta_n_hidden[i+1]))
-            #     hidden_layers.append(nn.BatchNorm1d(num_features=theta_n_hidden[i+1]))
-            #     hidden_layers.append(self.activations[activation])
-            # else:
-            #     hidden_layers.append(nn.Linear(in_features=theta_n_hidden[i], out_features=theta_n_hidden[i+1]))
-            #     hidden_layers.append(self.activations[activation])
 
             # Batch norm after activation
             hidden_layers.append(nn.Linear(in_features=theta_n_hidden[i], out_features=theta_n_hidden[i+1]))
@@ -140,7 +131,6 @@ class NBeats(nn.Module):
     def __init__(self, blocks: nn.ModuleList):
         super().__init__()
         self.blocks = blocks
-        #self.hardshrink = nn.Hardshrink(lambd=0.001)
 
     def forward(self, insample_y: t.Tensor, insample_x_t: t.Tensor, insample_mask: t.Tensor,
                 outsample_x_t: t.Tensor, x_s: t.Tensor, return_decomposition = False):

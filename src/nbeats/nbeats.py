@@ -32,7 +32,7 @@ def init_weights(module, initialization):
         elif initialization == 'glorot_normal':
             t.nn.init.xavier_normal_(module.weight)
         elif initialization == 'lecun_normal':
-            pass #t.nn.init.normal_(module.weight, 0.0, std=1/np.sqrt(module.weight.numel()))
+            pass
         else:
             assert 1<0, f'Initialization {initialization} not found'
 
@@ -147,7 +147,7 @@ class Nbeats(object):
             Early stopping interations.
         loss: str
             Loss to optimize.
-            An item from ['MAPE', 'MASE', 'SMAPE', 'MSE', 'MAE', 'PINBALL', 'PINBALL2'].
+            An item from ['MAPE', 'MASE', 'SMAPE', 'MSE', 'MAE', 'PINBALL'].
         loss_hypar:
             Hyperparameter for chosen loss.
         val_loss:
@@ -206,7 +206,6 @@ class Nbeats(object):
         self.seasonality = seasonality
         self.include_var_dict = include_var_dict
         self.t_cols = t_cols
-        #self.scaler = scaler
 
         if device is None:
             device = 'cuda' if t.cuda.is_available() else 'cpu'
@@ -228,7 +227,6 @@ class Nbeats(object):
         block_list = []
         self.blocks_regularizer = []
         for i in range(len(self.stack_types)):
-            #print(f'| --  Stack {self.stack_types[i]} (#{i})')
             for block_id in range(self.n_blocks[i]):
 
                 # Batch norm only on first block
@@ -334,7 +332,6 @@ class Nbeats(object):
                 # Select type of evaluation and apply it to all layers of block
                 init_function = partial(init_weights, initialization=self.initialization)
                 nbeats_block.layers.apply(init_function)
-                #print(f'     | -- {nbeats_block}')
                 block_list.append(nbeats_block)
         return block_list
 
@@ -358,16 +355,11 @@ class Nbeats(object):
             elif loss_name == 'PINBALL':
                 return PinballLoss(y=target, y_hat=forecast, mask=mask, tau=loss_hypar) + \
                        self.loss_l1_conv_layers() + self.loss_l1_theta()
-            elif loss_name == 'PINBALL2':
-                return PinballLoss(y=target, y_hat=forecast, mask=mask, tau=0.5) + \
-                       self.loss_l1_conv_layers() + self.loss_l1_theta() + \
-                       QuadraticBarrierLoss(z=(-forecast), tau=loss_hypar) # To induce forecast positivity
             else:
                 raise Exception(f'Unknown loss function: {loss_name}')
         return loss
 
     def __val_loss_fn(self, loss_name='MAE'):
-        #TODO: mase not implemented
         def loss(forecast, target, weights):
             if loss_name == 'MAPE':
                 return mape(y=target, y_hat=forecast, weights=weights)
@@ -412,7 +404,7 @@ class Nbeats(object):
         # Random Seeds (model initialization)
         t.manual_seed(self.random_seed)
         np.random.seed(self.random_seed)
-        random.seed(self.random_seed) #TODO: interaccion rara con window_sampling de validacion
+        random.seed(self.random_seed)
 
         # Attributes of ts_dataset
         self.n_x_t, self.n_x_s = train_ts_loader.get_n_variables()
@@ -434,12 +426,11 @@ class Nbeats(object):
         optimizer = optim.Adam(self.model.parameters(), lr=self.learning_rate, weight_decay=self.weight_decay)
         lr_scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=lr_decay_steps, gamma=self.lr_decay)
         training_loss_fn = self.__loss_fn(self.loss)
-        validation_loss_fn = self.__val_loss_fn(self.val_loss) #Uses numpy losses
+        validation_loss_fn = self.__val_loss_fn(self.val_loss)
 
         print('\n')
         print('='*30+' Start fitting '+'='*30)
 
-        #self.loss_dict = {} # Restart self.loss_dict
         start = time.time()
         self.trajectories = {'iteration':[],'train_loss':[], 'val_loss':[]}
         self.final_insample_loss = None
@@ -477,9 +468,7 @@ class Nbeats(object):
                 training_loss = training_loss_fn(x=insample_y, loss_hypar=self.loss_hypar, forecast=forecast,
                                                  target=outsample_y, mask=outsample_mask)
 
-                # Protection to exploding gradients
-                # if np.isnan(float(training_loss)):
-                #    break
+                # Protection if exploding gradients
                 if not np.isnan(float(training_loss)):
                     training_loss.backward()
                     t.nn.utils.clip_grad_norm_(self.model.parameters(), 1.0)
@@ -540,7 +529,7 @@ class Nbeats(object):
             print('='*30+'  End fitting  '+'='*30)
             print('\n')
 
-    def predict(self, ts_loader, X_test=None, eval_mode=False, return_decomposition=False):
+    def predict(self, ts_loader, X_test=None, return_decomposition=False):
         self.model.eval()
         assert not ts_loader.shuffle, 'ts_loader must have shuffle as False.'
 
@@ -558,7 +547,7 @@ class Nbeats(object):
 
                 forecast, block_forecast = self.model(insample_y=insample_y, insample_x_t=insample_x,
                                                       insample_mask=insample_mask, outsample_x_t=outsample_x,
-                                                      x_s=s_matrix, return_decomposition=True) # always return, then use or not
+                                                      x_s=s_matrix, return_decomposition=True) # always return decomposition
                 forecasts.append(forecast.cpu().data.numpy())
                 block_forecasts.append(block_forecast.cpu().data.numpy())
                 outsample_ys.append(batch['outsample_y'])
@@ -570,36 +559,15 @@ class Nbeats(object):
         outsample_masks = np.vstack(outsample_masks)
 
         self.model.train()
-        if eval_mode:
-            if return_decomposition:
-                return outsample_ys, forecasts, block_forecasts, outsample_masks
-            else:
-                return outsample_ys, forecasts, outsample_masks
-
-        # Pandas wrangling
-        frequency = ts_loader.get_frequency()
-        unique_ids = ts_loader.get_meta_data_col('unique_id')
-        last_ds = ts_loader.get_meta_data_col('last_ds') #TODO: ajustar of offset
-
-        # Predictions for panel
-        Y_hat_panel = pd.DataFrame(columns=['unique_id', 'ds'])
-        for i, unique_id in enumerate(unique_ids):
-            Y_hat_id = pd.DataFrame([unique_id]*self.output_size, columns=["unique_id"])
-            ds = pd.date_range(start=last_ds[i], periods=self.output_size+1, freq=frequency)
-            Y_hat_id["ds"] = ds[1:]
-            Y_hat_panel = Y_hat_panel.append(Y_hat_id, sort=False).reset_index(drop=True)
-
-        Y_hat_panel['y_hat'] = forecasts.flatten()
-
-        if X_test is not None:
-            Y_hat_panel = X_test.merge(Y_hat_panel, on=['unique_id', 'ds'], how='left')
-
-        return Y_hat_panel
+        if return_decomposition:
+            return outsample_ys, forecasts, block_forecasts, outsample_masks
+        else:
+            return outsample_ys, forecasts, outsample_masks
 
     def evaluate_performance(self, ts_loader, validation_loss_fn):
         self.model.eval()
 
-        target, forecast, outsample_mask = self.predict(ts_loader=ts_loader, eval_mode=True)
+        target, forecast, outsample_mask = self.predict(ts_loader=ts_loader)
 
         complete_loss = validation_loss_fn(target=target, forecast=forecast, weights=outsample_mask)
 

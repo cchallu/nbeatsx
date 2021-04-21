@@ -1,30 +1,19 @@
 import os
-# Limit number of threads in numpy and others to avoid throttling
-os.environ["OMP_NUM_THREADS"] = "2" # export OMP_NUM_THREADS=4
-os.environ["OPENBLAS_NUM_THREADS"] = "2" # export OPENBLAS_NUM_THREADS=4 
-os.environ["MKL_NUM_THREADS"] = "3" # export MKL_NUM_THREADS=6
-os.environ["VECLIB_MAXIMUM_THREADS"] = "2" # export VECLIB_MAXIMUM_THREADS=4
-os.environ["NUMEXPR_NUM_THREADS"] = "3" # export NUMEXPR_NUM_THREADS=6
-
-import numpy as np
-import pandas as pd
 import argparse
 import pickle
 import glob
 import itertools
 import random
 import torch
+import numpy as np
+import pandas as pd
 
 from datetime import datetime
 from functools import partial
-
-from src.utils.experiment.utils_experiment import run_val_nbeatsx, run_test_nbeatsx
-from src.utils.data.datasets.epf import load_epf
-
 from hyperopt import fmin, tpe, hp, Trials, STATUS_OK
 
-import warnings
-warnings.filterwarnings("ignore")
+from src.utils.experiment.utils_experiment import run_val_nbeatsx, run_test_nbeatsx
+from src.utils.data.datasets.epf import EPF, EPFInfo
 
 TEST_DATE = {'NP': '2016-12-27',
              'PJM':'2016-12-27',
@@ -59,11 +48,10 @@ def get_experiment_space(args):
     Defines the search space for hyperopt. The space depends on the type of model specified.
     For more information of each hyperparameter, refer to NBEATS model comments.
     """
+    # Generic NBEATSx
     if args.space == 'nbeats_x':
-        space = {'initialization':  hp.choice('initialization', ['orthogonal','he_uniform',
-                                                                 'he_normal','glorot_uniform',
-                                                                 'glorot_normal','lecun_normal']),
-                'activation': hp.choice('activation', ['relu','softplus','tanh','selu','lrelu','prelu','sigmoid']),
+        space = {'initialization':  hp.choice('initialization', ['orthogonal', 'he_normal', 'glorot_normal']),
+                'activation': hp.choice('activation', ['softplus','selu','prelu','sigmoid']),
                 'stack_types': hp.choice('stack_types', [ ['identity'],
                                                     1*['identity']+['exogenous_wavenet'],
                                                     ['exogenous_wavenet']+1*['identity'],
@@ -79,17 +67,17 @@ def get_experiment_space(args):
                 'batch_normalization': hp.choice('batch_normalization', [True, False]),
                 'dropout_prob_theta': hp.uniform('dropout_prob_theta', 0, 1),
                 'dropout_prob_exogenous': hp.uniform('dropout_prob_exogenous', 0, 0.5),
-                'learning_rate': hp.loguniform('learning_rate', np.log(5e-4), np.log(0.1)),
+                'learning_rate': hp.loguniform('learning_rate', np.log(5e-4), np.log(0.01)),
                 'lr_decay': hp.choice('lr_decay', [0.5]),
                 'n_lr_decay_steps': hp.choice('n_lr_decay_steps', [3]),
                 'early_stopping': hp.choice('early_stopping', [10]),
                 'eval_steps': hp.choice('eval_steps', [100]),
                 'weight_decay': hp.choice('weight_decay', [0]),
-                'n_iterations': hp.choice('n_iterations', [30_000]),
-                'batch_size': hp.choice('batch_size', [128, 256, 512]),
+                'n_iterations': hp.choice('n_iterations', [100]), #30_000
+                'batch_size': hp.choice('batch_size', [256, 512]),
                 'l1_theta': hp.choice('l1_theta', [0]), 
-                'normalizer_y': hp.choice('normalizer_y', [None, 'norm', 'norm1', 'std', 'median', 'invariant']),
-                'normalizer_x': hp.choice('normalizer_x', [None, 'norm', 'norm1', 'std', 'median', 'invariant']),
+                'normalizer_y': hp.choice('normalizer_y', [None, 'median', 'invariant']),
+                'normalizer_x': hp.choice('normalizer_x', [None, 'median', 'invariant']),
                 'loss': hp.choice('loss', ['MAE']),
                 'random_seed': hp.quniform('random_seed', 1, 1000, 1),
                 'incl_pr1': hp.choice('incl_pr1', [True]),
@@ -107,7 +95,7 @@ def get_experiment_space(args):
     return space
 
 def main(args):
-    # Random seed for validation set, etc.
+    # Random seeds
     np.random.seed(1)
     random.seed(1)
 
@@ -130,11 +118,15 @@ def main(args):
     print(75*'-'+'\n')
 
     test_date = TEST_DATE[args.dataset]
-
-    dataset_dir = f'./DATA/'
-    y_insample_df, X_t_insample_df, y_outsample_df, X_t_outsample_df, X_s_df = load_epf(market=args.dataset,
-                                                                                        first_date_test=test_date,
-                                                                                        days_in_test=728)
+    Y_df, X_df, _ = EPF.load_groups(directory='./data', groups=[args.dataset])
+    
+    # Remove test set
+    test_date = TEST_DATE[args.dataset]
+    y_insample_df = Y_df[Y_df['ds']<test_date].reset_index(drop=True)
+    X_t_insample_df = X_df[X_df['ds']<test_date].reset_index(drop=True)
+    y_outsample_df = Y_df[Y_df['ds']>=test_date].reset_index(drop=True)
+    X_t_outsample_df = X_df[X_df['ds']>=test_date].reset_index(drop=True)
+    
 
     print(f'Dataset: {args.dataset}')
     print('X: time series features, of shape (#hours, #times,#features): \t' + str(X_t_insample_df.shape))
@@ -191,7 +183,7 @@ def main(args):
         pickle.dump(result_test, f)
 
 def parse_args():
-    desc = "Classification/anomaly detection shared trend metric experiment"
+    desc = "NBEATSx run experiment"
     parser = argparse.ArgumentParser(description=desc)
 
     parser.add_argument('--dataset', type=str, required=True, help='Name of market')
@@ -214,7 +206,4 @@ if __name__ == '__main__':
 
 # source ~/anaconda3/etc/profile.d/conda.sh
 # conda activate nbeatsx
-# CUDA_VISIBLE_DEVICES=0 PYTHONPATH=. python src/hyperopt_nbeatsx.py --dataset 'NP' --space "nbeats_x" --data_augmentation 0 --random_validation 0 --n_val_weeks 52 --hyperopt_iters 1500 --experiment_id "20210129_0_0"
-# CUDA_VISIBLE_DEVICES=1 PYTHONPATH=. python src/hyperopt_nbeatsx.py --dataset 'NP' --space "nbeats_x" --data_augmentation 0 --random_validation 1 --n_val_weeks 52 --hyperopt_iters 1500 --experiment_id "20210129_0_1"
-# CUDA_VISIBLE_DEVICES=2 PYTHONPATH=. python src/hyperopt_nbeatsx.py --dataset 'NP' --space "nbeats_x" --data_augmentation 1 --random_validation 0 --n_val_weeks 52 --hyperopt_iters 1500 --experiment_id "20210129_1_0"
-# CUDA_VISIBLE_DEVICES=3 PYTHONPATH=. python src/hyperopt_nbeatsx.py --dataset 'NP' --space "nbeats_x" --data_augmentation 1 --random_validation 1 --n_val_weeks 52 --hyperopt_iters 1500 --experiment_id "20210129_1_1"
+# PYTHONPATH=. python src/hyperopt_nbeatsx.py --dataset 'NP' --space "nbeats_x" --data_augmentation 0 --random_validation 0 --n_val_weeks 52 --hyperopt_iters 2 --experiment_id "20210129_0_0"

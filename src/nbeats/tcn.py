@@ -1,3 +1,5 @@
+## We use the implementation of TCN from https://github.com/locuslab/TCN
+
 import torch
 import torch.nn as nn
 from torch.nn.utils import weight_norm
