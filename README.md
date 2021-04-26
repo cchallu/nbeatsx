@@ -20,7 +20,7 @@ The results for the Pennsylvania-New Jersey-Maryland, Belgium, France and German
 | RMSE         |  4.08 |    3.89 |     3.94 |  3.71 |   3.36 |  3.32 |        3.16 |        3.27 |
 
 ### NBEATSx usage
-Our implementation of the NBEATSx is designed to work on any data. We designed a full pipeline with auxiliary objects, namely Dataset and DataLoader, to facilitate the forecasting task. We provide an example notebook in [example.ipynb](https://github.com/cchallu/nbeatsx/blob/main/nbeatsx_example.ipynb)
+Our implementation of the NBEATSx is designed to work on any data. We designed a full pipeline with auxiliary objects, namely Dataset and DataLoader, to facilitate the forecasting task. We provide an example notebook in [nbeatsx_example.ipynb](https://github.com/cchallu/nbeatsx/blob/main/nbeatsx_example.ipynb)
 
 ### Run NBEATSx experiment from console
 To replicate the results of the paper, in particular to produce the forecasts for NBEATSx, run the following line:
